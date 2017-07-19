@@ -2,7 +2,7 @@
 
 module Lexer where
   
-import Data.Text
+import Data.Text hiding (unwords, map)
 import Text.Megaparsec hiding (Token, token, space, spaces)
 import qualified Text.Megaparsec as P
 import Text.Megaparsec.Text
@@ -12,9 +12,9 @@ data Expr = Bind Token [Token] [Token]
           | Blank
 
 instance Show Expr where
-    show (Bind a b c) = show a ++ " " ++ show b ++ " = "++ show c ++ "\n"
-    show (Load s)     = "#load " ++ show s ++ "\n"
-    show (Blank)      = "\n"
+    show (Bind a b c) = show a ++ " " ++ (unwords $ map show b) ++ " = "++ (unwords $ map show c)
+    show (Load s)     = "#load " ++ show s
+    show (Blank)      = ""
 
 data Token = Mt String
            | Op String
@@ -26,10 +26,10 @@ data Token = Mt String
 instance Show Token where
   show (Mt s)  = s
   show (Op s)  = s
-  show (Br ss) = show ss
+  show (Br ss) = "(" ++ (unwords $ map show ss) ++ ")"
   show (Nm s)  = s
   show (Rs s)  = s
-  show Nl      = " "
+  show Nl      = "\n        "
 
 lexer :: Text -> Either (ParseError (P.Token Text) Dec) [Expr]
 lexer = parse expr "lexer" 
